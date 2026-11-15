@@ -132,6 +132,7 @@ import com.nextcloud.talk.utils.bundle.BundleKeys.KEY_INTERNAL_USER_ID
 import com.nextcloud.talk.utils.bundle.BundleKeys.KEY_IS_BREAKOUT_ROOM
 import com.nextcloud.talk.utils.bundle.BundleKeys.KEY_IS_MODERATOR
 import com.nextcloud.talk.utils.bundle.BundleKeys.KEY_RECORDING_STATE
+import com.nextcloud.talk.models.json.dashboardEvents.DashboardEvent
 import com.nextcloud.talk.utils.bundle.BundleKeys.KEY_ROOM_TOKEN
 import com.nextcloud.talk.utils.bundle.BundleKeys.KEY_SCROLL_TO_NOTIFICATION_CATEGORY
 import com.nextcloud.talk.utils.bundle.BundleKeys.KEY_SHARED_TEXT
@@ -530,6 +531,7 @@ class ConversationsListActivity : BaseActivity() {
                 intent.putExtra(KEY_INTERNAL_USER_ID, currentUser.id)
                 startActivity(intent)
             },
+            onUpcomingMeetingClick = { openUpcomingMeeting(it) },
             onFilterClick = {
                 FilterConversationFragment
                     .newInstance(
@@ -1030,6 +1032,12 @@ class ConversationsListActivity : BaseActivity() {
         if (hasSpreedFeatureCapability(currentUser.capabilities?.spreedCapability, SpreedFeatures.FEDERATION_V1)) {
             conversationsListViewModel.getFederationInvitations()
         }
+        conversationsListViewModel.fetchUpcomingMeetings()
+    }
+
+    private fun openUpcomingMeeting(meeting: DashboardEvent) {
+        val token = meeting.roomToken ?: return
+        startActivity(ChatActivity.createIntent(context, currentUser.id!!, token))
     }
 
     private fun handleHttpExceptions(throwable: Throwable) {

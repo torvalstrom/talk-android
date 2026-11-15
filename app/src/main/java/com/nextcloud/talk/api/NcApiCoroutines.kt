@@ -44,6 +44,7 @@ import com.nextcloud.talk.models.json.testNotification.TestNotificationOverall
 import com.nextcloud.talk.models.json.threads.ThreadOverall
 import com.nextcloud.talk.models.json.threads.ThreadsOverall
 import com.nextcloud.talk.models.json.unifiedsearch.UnifiedSearchOverall
+import com.nextcloud.talk.models.json.dashboardEvents.DashboardEventsOverall
 import com.nextcloud.talk.models.json.upcomingEvents.UpcomingEventsOverall
 import com.nextcloud.talk.models.json.userAbsence.UserAbsenceOverall
 import com.nextcloud.talk.models.json.userprofile.UserProfileOverall
@@ -373,6 +374,12 @@ interface NcApiCoroutines {
         @Header("Authorization") authorization: String,
         @Url url: String
     ): UpcomingEventsOverall
+
+    @GET
+    suspend fun getDashboardEvents(
+        @Header("Authorization") authorization: String,
+        @Url url: String
+    ): DashboardEventsOverall
 
     @POST
     suspend fun testPushNotifications(

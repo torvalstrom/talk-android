@@ -58,6 +58,7 @@ import com.nextcloud.talk.models.domain.ConversationModel
 import com.nextcloud.talk.models.domain.SearchMessageEntry
 import com.nextcloud.talk.models.json.chat.ChatMessageDto
 import com.nextcloud.talk.models.json.conversations.ConversationEnums
+import com.nextcloud.talk.models.json.dashboardEvents.DashboardEvent
 import com.nextcloud.talk.models.json.participants.ParticipantDto
 import com.nextcloud.talk.models.json.tags.ConversationTagDto
 import com.nextcloud.talk.chooseaccount.ChooseAccountDialogCompose
@@ -111,6 +112,7 @@ data class ConversationsListScreenCallbacks(
     val onNotificationWarningNotNow: () -> Unit,
     val onNotificationWarningShowSettings: () -> Unit,
     val onFederationHintClick: () -> Unit,
+    val onUpcomingMeetingClick: (DashboardEvent) -> Unit,
     val onFilterClick: () -> Unit,
     val onThreadsClick: () -> Unit,
     val onAvatarClick: () -> Unit,
@@ -156,6 +158,7 @@ fun ConversationsListScreen(
     val tagActionState by tagsViewModel.tagActionState.collectAsStateWithLifecycle()
     val tagAssignmentSheetState = rememberModalBottomSheetState()
     val manageTagsSheetState = rememberModalBottomSheetState()
+    val upcomingMeetings by viewModel.upcomingMeetings.collectAsStateWithLifecycle()
 
     // Activity-level state
     val isMaintenanceMode by state.isMaintenanceModeFlow.collectAsStateWithLifecycle()
@@ -292,6 +295,11 @@ fun ConversationsListScreen(
                     FederationInvitationHintCard(
                         visible = federationHintVisible,
                         onClick = callbacks.onFederationHintClick
+                    )
+                    UpcomingMeetingsCard(
+                        meetings = upcomingMeetings,
+                        visible = !isSearchActive && !showShareTo && !isForward,
+                        onMeetingClick = callbacks.onUpcomingMeetingClick
                     )
                     Box(
                         modifier = Modifier

@@ -555,6 +555,10 @@ object ApiUtils {
     fun getUrlForOutOfOffice(baseUrl: String, userId: String): String =
         "$baseUrl$OCS_API_VERSION/apps/dav/api/v1/outOfOffice/$userId/now"
 
+    /** Talk 21+: the events of the next 7 days that point at a conversation, as on the web dashboard. */
+    fun getUrlForDashboardEvents(baseUrl: String): String =
+        "$baseUrl$OCS_API_VERSION/apps/spreed/api/v4/dashboard/events"
+
     fun getUrlForUpcomingEvents(baseUrl: String, roomToken: String): String =
         "$baseUrl$OCS_API_VERSION/apps/dav/api/v1/events/upcoming" +
             "?location=${URLEncoder.encode("$baseUrl/call/$roomToken", "UTF-8")}"

@@ -15,6 +15,8 @@ import com.nextcloud.talk.account.data.io.LocalLoginDataSource
 import com.nextcloud.talk.account.data.network.NetworkLoginDataSource
 import com.nextcloud.talk.api.NcApi
 import com.nextcloud.talk.api.NcApiCoroutines
+import com.nextcloud.talk.upcomingmeetings.data.UpcomingMeetingsRepository
+import com.nextcloud.talk.upcomingmeetings.data.UpcomingMeetingsRepositoryImpl
 import com.nextcloud.talk.chat.data.ChatMessageRepository
 import com.nextcloud.talk.chat.data.network.ChatMessageSyncer
 import com.nextcloud.talk.arbitrarystorage.ArbitraryStorageManager
@@ -124,6 +126,10 @@ class RepositoryModule {
     @Provides
     fun provideOpenConversationsRepository(ncApiCoroutines: NcApiCoroutines): OpenConversationsRepository =
         OpenConversationsRepositoryImpl(ncApiCoroutines)
+
+    @Provides
+    fun provideUpcomingMeetingsRepository(ncApiCoroutines: NcApiCoroutines): UpcomingMeetingsRepository =
+        UpcomingMeetingsRepositoryImpl(ncApiCoroutines)
 
     @Provides
     fun translateRepository(ncApi: NcApi): TranslateRepository = TranslateRepositoryImpl(ncApi)

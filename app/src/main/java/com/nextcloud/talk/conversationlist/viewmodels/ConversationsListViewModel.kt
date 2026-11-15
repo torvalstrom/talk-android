@@ -31,6 +31,7 @@ import com.nextcloud.talk.models.domain.ConversationModel
 import com.nextcloud.talk.models.json.conversations.ConversationDto
 import com.nextcloud.talk.models.json.conversations.ConversationEnums
 import com.nextcloud.talk.models.json.converters.EnumActorTypeConverter
+import com.nextcloud.talk.models.json.dashboardEvents.DashboardEvent
 import com.nextcloud.talk.models.json.participants.ParticipantDto
 import com.nextcloud.talk.openconversations.data.OpenConversationsRepository
 import com.nextcloud.talk.repositories.unifiedsearch.UnifiedSearchRepository
@@ -39,6 +40,7 @@ import com.nextcloud.talk.ui.dialog.FilterConversationFragment.Companion.ARCHIVE
 import com.nextcloud.talk.ui.dialog.FilterConversationFragment.Companion.DEFAULT
 import com.nextcloud.talk.ui.dialog.FilterConversationFragment.Companion.MENTION
 import com.nextcloud.talk.ui.dialog.FilterConversationFragment.Companion.UNREAD
+import com.nextcloud.talk.upcomingmeetings.data.UpcomingMeetingsRepository
 import com.nextcloud.talk.users.UserManager
 import com.nextcloud.talk.utils.ApiUtils
 import com.nextcloud.talk.utils.CapabilitiesUtil.hasSpreedFeatureCapability
@@ -88,6 +90,7 @@ class ConversationsListViewModel @AssistedInject constructor(
     private val conversationListUpdater: ConversationListUpdater,
     private val conversationActionScheduler: ConversationActionScheduler,
     private val logger: Logger,
+    private val upcomingMeetingsRepository: UpcomingMeetingsRepository,
     @Assisted val currentUser: User
 ) : ViewModel() {
 
@@ -204,6 +207,19 @@ class ConversationsListViewModel @AssistedInject constructor(
     ) { isLoading, rooms ->
         isLoading && rooms.isEmpty()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    // Upcoming meetings (calendar events pointing at a conversation, next 7 days). Empty on servers
+    // without the dashboard API (Talk < 21) or when the request fails - the card simply stays hidden.
+    private val _upcomingMeetings = MutableStateFlow<List<DashboardEvent>>(emptyList())
+    val upcomingMeetings: StateFlow<List<DashboardEvent>> = _upcomingMeetings.asStateFlow()
+
+    fun fetchUpcomingMeetings() {
+        viewModelScope.launch {
+            upcomingMeetingsRepository.fetchUpcomingMeetings(currentUser)
+                .onSuccess { _upcomingMeetings.value = it }
+                .onFailure { Log.d(TAG, "Upcoming meetings not available: " + it.message) }
+        }
+    }
 
     private val _federationInvitationHintVisible = MutableStateFlow(false)
     val federationInvitationHintVisible: StateFlow<Boolean> = _federationInvitationHintVisible.asStateFlow()

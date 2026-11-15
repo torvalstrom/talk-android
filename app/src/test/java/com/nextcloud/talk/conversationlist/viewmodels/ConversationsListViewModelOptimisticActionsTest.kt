@@ -29,6 +29,7 @@ import com.nextcloud.talk.models.json.participants.ParticipantDto
 import com.nextcloud.talk.openconversations.data.OpenConversationsRepository
 import com.nextcloud.talk.repositories.unifiedsearch.UnifiedSearchRepository
 import com.nextcloud.talk.threadsoverview.data.ThreadsRepository
+import com.nextcloud.talk.upcomingmeetings.data.UpcomingMeetingsRepository
 import com.nextcloud.talk.users.UserManager
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -102,6 +103,7 @@ class ConversationsListViewModelOptimisticActionsTest {
             conversationListUpdater,
             conversationActionScheduler,
             mock<Logger>(),
+            mock<UpcomingMeetingsRepository>(),
             USER
         )
     }

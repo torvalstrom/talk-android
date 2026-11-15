@@ -29,6 +29,7 @@ import com.nextcloud.talk.openconversations.data.OpenConversationsRepository
 import com.nextcloud.talk.repositories.unifiedsearch.UnifiedSearchRepository
 import com.nextcloud.talk.repositories.unifiedsearch.UnifiedSearchRepository.UnifiedSearchResults
 import com.nextcloud.talk.threadsoverview.data.ThreadsRepository
+import com.nextcloud.talk.upcomingmeetings.data.UpcomingMeetingsRepository
 import com.nextcloud.talk.users.UserManager
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -141,6 +142,7 @@ class ConversationsListViewModelSearchTest {
             mock<ConversationListUpdater>(),
             mock<ConversationActionScheduler>(),
             mock<Logger>(),
+            mock<UpcomingMeetingsRepository>(),
             USER
         )
         viewModel.setIsSearchActive(true)
