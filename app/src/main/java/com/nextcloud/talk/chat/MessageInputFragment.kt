@@ -1185,12 +1185,10 @@ class MessageInputFragment : Fragment() {
     private fun setEditUI(message: ChatMessage) {
         val editedMessage = ChatUtils.getParsedMessage(message.message, message.messageParameters)
         binding.fragmentEditView.editMessage.text = editedMessage
-        binding.fragmentMessageInputView.inputEditText.setText(editedMessage)
+        // the input text comes from the input state, so a recreated view keeps the changes made so far
         if (mentionAutocomplete != null && mentionAutocomplete!!.isPopupShowing) {
             mentionAutocomplete?.dismissPopup()
         }
-        val end = binding.fragmentMessageInputView.inputEditText.text.length
-        binding.fragmentMessageInputView.inputEditText.setSelection(end)
         binding.fragmentEditView.editMessageView.visibility = View.VISIBLE
         binding.fragmentMessageInputView.editMessageButton.visibility = View.VISIBLE
         handleButtonsVisibility()
