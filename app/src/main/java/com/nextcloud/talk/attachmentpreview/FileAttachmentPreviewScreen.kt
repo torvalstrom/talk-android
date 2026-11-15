@@ -7,6 +7,7 @@
 package com.nextcloud.talk.attachmentpreview
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -46,6 +48,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -91,6 +94,26 @@ internal fun FileAttachmentPreviewContent(
     var caption by rememberSaveable { mutableStateOf("") }
     var compressImages by rememberSaveable { mutableStateOf(initialCompressImages) }
     var allowUpdate by rememberSaveable { mutableStateOf(false) }
+    var showDiscardCaptionDialog by rememberSaveable { mutableStateOf(false) }
+
+    val requestDismiss = {
+        if (caption.isBlank()) {
+            onDismiss()
+        } else {
+            showDiscardCaptionDialog = true
+        }
+    }
+    BackHandler(onBack = requestDismiss)
+
+    if (showDiscardCaptionDialog) {
+        DiscardCaptionDialog(
+            onDiscard = {
+                showDiscardCaptionDialog = false
+                onDismiss()
+            },
+            onKeepEditing = { showDiscardCaptionDialog = false }
+        )
+    }
 
     LaunchedEffect(currentFiles.toSet(), compressImages) {
         viewModel.describeFiles(compressImages)
@@ -129,7 +152,7 @@ internal fun FileAttachmentPreviewContent(
                 .navigationBarsPadding()
                 .imePadding()
         ) {
-            PreviewTopBar(conversationName = conversationName, onDismiss = onDismiss)
+            PreviewTopBar(conversationName = conversationName, onDismiss = requestDismiss)
 
             HorizontalDivider()
 
@@ -189,6 +212,25 @@ internal fun FileAttachmentPreviewContent(
             )
         }
     }
+}
+
+@Composable
+private fun DiscardCaptionDialog(onDiscard: () -> Unit, onKeepEditing: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onKeepEditing,
+        title = { Text(stringResource(R.string.nc_discard_caption_title)) },
+        text = { Text(stringResource(R.string.nc_discard_caption_message)) },
+        confirmButton = {
+            TextButton(onClick = onDiscard) {
+                Text(stringResource(R.string.nc_discard_caption_discard))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onKeepEditing) {
+                Text(stringResource(R.string.nc_discard_caption_keep_editing))
+            }
+        }
+    )
 }
 
 @Composable

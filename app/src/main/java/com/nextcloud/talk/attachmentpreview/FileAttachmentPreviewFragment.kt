@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.bundleOf
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.DialogFragment
@@ -37,9 +38,6 @@ class FileAttachmentPreviewFragment : DialogFragment() {
     private lateinit var filesList: ArrayList<String>
     private var conversationName: String = ""
     private var showFilePermissionsOption: Boolean = false
-    private var uploadFiles:
-        (files: MutableList<String>, caption: String, compressImages: Boolean, allowUpdate: Boolean) -> Unit =
-        { _, _, _, _ -> }
     private var composeView: ComposeView? = null
 
     // set when the files are sent, so their copies are kept for the upload
@@ -58,18 +56,9 @@ class FileAttachmentPreviewFragment : DialogFragment() {
         ViewModelProvider(this, viewModelFactory)[FileAttachmentPreviewViewModel::class.java]
     }
 
-    fun setListener(
-        uploadFiles: (
-            files: MutableList<String>,
-            caption: String,
-            compressImages: Boolean,
-            allowUpdate: Boolean
-        ) -> Unit
-    ) {
-        this.uploadFiles = uploadFiles
-    }
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        // Back is handled by the screen, which asks before discarding a typed caption
+        isCancelable = false
         arguments?.let {
             filesList = it.getStringArrayList(FILES_TO_UPLOAD_ARG)!!
             conversationName = it.getString(CONVERSATION_NAME_ARG, "")
@@ -123,7 +112,16 @@ class FileAttachmentPreviewFragment : DialogFragment() {
                         showFilePermissionsOption = showFilePermissionsOption,
                         onDismiss = { dismiss() },
                         onSend = { files, caption, compressImages, allowUpdate ->
-                            uploadFiles(files.toMutableList(), caption, compressImages, allowUpdate)
+                            // a fragment result still reaches the chat when this fragment was recreated, e.g. on rotation
+                            parentFragmentManager.setFragmentResult(
+                                REQUEST_KEY,
+                                bundleOf(
+                                    RESULT_FILES to ArrayList(files),
+                                    RESULT_CAPTION to caption,
+                                    RESULT_COMPRESS_IMAGES to compressImages,
+                                    RESULT_ALLOW_UPDATE to allowUpdate
+                                )
+                            )
                             isSent = true
                             dismiss()
                         }
@@ -153,6 +151,12 @@ class FileAttachmentPreviewFragment : DialogFragment() {
         private const val FILES_TO_UPLOAD_ARG = "FILES_TO_UPLOAD_ARG"
         private const val CONVERSATION_NAME_ARG = "CONVERSATION_NAME_ARG"
         private const val FILE_PERMISSIONS_OPTION_ARG = "FILE_PERMISSIONS_OPTION_ARG"
+
+        const val REQUEST_KEY = "FILE_ATTACHMENT_PREVIEW_REQUEST"
+        const val RESULT_FILES = "RESULT_FILES"
+        const val RESULT_CAPTION = "RESULT_CAPTION"
+        const val RESULT_COMPRESS_IMAGES = "RESULT_COMPRESS_IMAGES"
+        const val RESULT_ALLOW_UPDATE = "RESULT_ALLOW_UPDATE"
 
         @JvmStatic
         fun newInstance(

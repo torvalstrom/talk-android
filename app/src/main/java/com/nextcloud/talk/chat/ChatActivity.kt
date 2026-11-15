@@ -577,6 +577,7 @@ class ChatActivity :
             return
         }
         initialUser = setUpBoundUserOrFinish() ?: return
+        listenForFileAttachmentPreviewResult()
 
         chatAudioPlayer = ChatAudioPlayer(this, chatAudioStore, lifecycleScope)
         lifecycle.addObserver(chatAudioPlayer)
@@ -2551,15 +2552,23 @@ class ChatActivity :
         }
     }
 
+    private fun listenForFileAttachmentPreviewResult() {
+        supportFragmentManager.setFragmentResultListener(FileAttachmentPreviewFragment.REQUEST_KEY, this) { _, result ->
+            uploadFiles(
+                result.getStringArrayList(FileAttachmentPreviewFragment.RESULT_FILES).orEmpty().toMutableList(),
+                result.getString(FileAttachmentPreviewFragment.RESULT_CAPTION).orEmpty(),
+                result.getBoolean(FileAttachmentPreviewFragment.RESULT_COMPRESS_IMAGES),
+                result.getBoolean(FileAttachmentPreviewFragment.RESULT_ALLOW_UPDATE)
+            )
+        }
+    }
+
     private fun showFileAttachmentPreview(files: MutableList<String>) {
         val newFragment = FileAttachmentPreviewFragment.newInstance(
             files,
             currentConversation?.displayName ?: "",
             CapabilitiesUtil.hasConversationSubfoldersForAttachments(spreedCapabilities)
         )
-        newFragment.setListener { selectedFiles, caption, compressImages, allowUpdate ->
-            uploadFiles(selectedFiles, caption, compressImages, allowUpdate)
-        }
         newFragment.show(supportFragmentManager, FileAttachmentPreviewFragment.TAG)
     }
 
