@@ -1055,6 +1055,8 @@ class MessageInputFragment : Fragment() {
             )
             cancelReply()
             cancelCreateThread()
+            // the stored draft must not keep the sent text until the screen is paused
+            chatActivity.chatViewModel.saveMessageDraft()
             chatActivity.requestScrollToNewestMessage()
         }
     }

@@ -384,6 +384,9 @@ class ChatViewModel @AssistedInject constructor(
     val disposableSet = mutableSetOf<Disposable>()
 
     var messageDraft: MessageDraft = MessageDraft()
+
+    // loaded once: afterwards the draft in memory is the newer one, its save may still be running
+    private var isMessageDraftLoaded = false
     var hiddenUpcomingEvent: String? = null
     lateinit var participantPermissions: ParticipantPermissions
     private val _spreedCapabilities = MutableStateFlow<SpreedCapabilityDto?>(null)
@@ -2746,6 +2749,10 @@ class ChatViewModel @AssistedInject constructor(
         }
 
     suspend fun updateMessageDraft() {
+        if (isMessageDraftLoaded) {
+            return
+        }
+        isMessageDraftLoaded = true
         val model = conversationRepository.getLocallyStoredConversation(
             currentUser,
             chatRoomToken
