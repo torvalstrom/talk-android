@@ -218,15 +218,6 @@ class MessageInputViewModel :
         }
     }
 
-    fun sendUnsentMessages(credentials: String, url: String) {
-        viewModelScope.launch {
-            chatRepository.sendUnsentChatMessages(
-                credentials,
-                url
-            )
-        }
-    }
-
     fun editChatMessage(credentials: String, url: String, messageId: Long, text: String) {
         viewModelScope.launch {
             val result = chatRepository.editChatMessage(
